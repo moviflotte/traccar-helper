@@ -1,5 +1,5 @@
 # Traccar helper
-Debug traccar user data
+Debug traccar user data, upload geofences in GeoJSON.
 ## Build Setup
 
 ```bash
