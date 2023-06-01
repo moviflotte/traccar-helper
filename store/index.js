@@ -17,13 +17,14 @@ export const actions = {
     await this.$axios.$post('devices', { name, uniqueId: name })
     commit('SET_DEVICES', await this.$axios.$get('devices'))
   },
-  async addGeofence ({ commit }, {name, area}) {
+  async addGeofence ({ commit }, { name, area }) {
     await this.$axios.$post('geofences', { name, area })
     commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
   },
   async getUserData ({ commit }) {
     commit('SET_SESSION', await this.$axios.$get('session'))
     commit('SET_DEVICES', await this.$axios.$get('devices'))
+    commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
   }
 }
 export const mutations = {
@@ -32,5 +33,8 @@ export const mutations = {
   },
   SET_DEVICES (state, devices) {
     state.devices = devices
+  },
+  SET_GEOFENCES (state, geofences) {
+    state.geofences = geofences
   }
 }

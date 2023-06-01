@@ -4,10 +4,13 @@
     <br>
     <br>
     {{geofences.length}} geofences:
-    <ol>
+    <button @click="showGeofences=!showGeofences">{{showGeofences?'hide':'show'}}</button>
+    <ol v-if="showGeofences">
       <li v-for="d of geofences" :key="d.id">geofence {{d.attributes}}</li>
     </ol>
-    <input type="button" value="ADD GEOFENCE" @click="addGeofence">
+    <br>
+    ADD GEOFENCE
+    <input ref="file" type="file" value="ADD GEOFENCE" @change="addGeofence">
     <p></p>
     {{geofences.length}} groups:
     <ol>
@@ -19,17 +22,21 @@
       <li v-for="d of devices" :key="d.id">{{d}}</li>
     </ol>
     <input type="button" value="ADD DEVICE" @click="addDevice">
+    <input type="button" value="REMOVE ATTRIBUTE" @click="removeAttribute">
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import { stringify } from 'wellknown'
 
 export default {
   name: 'IndexPage',
-  data() {
+  data () {
     return {
-      showDevices: true
+      file: null,
+      showDevices: true,
+      showGeofences: false
     }
   },
   computed: {
@@ -39,10 +46,26 @@ export default {
     addDevice () {
       this.$store.dispatch('addDevice', prompt('Device name?'))
     },
+    removeAttribute () {
+      this.$store.dispatch('removeAttribute')
+    },
     addGeofence () {
-      const name = prompt('Geofence name?')
-      const area = prompt('WKT')
-      this.$store.dispatch('addGeofence', {name, area})
+      const name = prompt('Name?')
+      this.file = this.$refs.file.files[0]
+      const reader = new FileReader()
+      reader.onload = (res) => {
+        const content = JSON.parse(res.target.result)
+        console.log('json', content)
+        const feature = content.features[0]
+        console.log('feature', feature)
+        feature.geometry.coordinates = feature.geometry.coordinates.map(c => [c[1].toFixed(6), c[0].toFixed(6)])
+        const geojson = stringify(feature)
+        console.log('geojson', geojson)
+        const area = stringify(feature)
+        this.$store.dispatch('addGeofence', { name, area })
+      }
+      reader.onerror = (err) => console.log(err)
+      reader.readAsText(this.file)
     },
 
     async processDevices () {
