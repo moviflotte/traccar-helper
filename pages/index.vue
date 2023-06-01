@@ -22,7 +22,6 @@
       <li v-for="d of devices" :key="d.id">{{d}}</li>
     </ol>
     <input type="button" value="ADD DEVICE" @click="addDevice">
-    <input type="button" value="REMOVE ATTRIBUTE" @click="removeAttribute">
   </div>
 </template>
 
@@ -45,9 +44,6 @@ export default {
   methods: {
     addDevice () {
       this.$store.dispatch('addDevice', prompt('Device name?'))
-    },
-    removeAttribute () {
-      this.$store.dispatch('removeAttribute')
     },
     addGeofence () {
       const name = prompt('Name?')
