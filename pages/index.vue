@@ -1,14 +1,17 @@
 <template>
   <div>
-    user: {{this.session && this.session.email}}
-    <br>
-    <br>
+    user: {{this.session && this.session.email}} {{this.session && this.session.id}}
+    <br/>
+    <p>
+      userid: <input type="text" v-model="userId">
+      <button @click="devicesByUser">FILTER</button>
+    </p>
     {{geofences.length}} geofences:
     <button @click="showGeofences=!showGeofences">{{showGeofences?'hide':'show'}}</button>
     <ol v-if="showGeofences">
       <li v-for="d of geofences" :key="d.id">geofence {{d.attributes}}</li>
     </ol>
-    <br>
+    <br><br>
     ADD GEOFENCE
     <input ref="file" type="file" value="ADD GEOFENCE" @change="addGeofence">
     <p></p>
@@ -18,8 +21,11 @@
     </ol>
     {{devices.length}} devices:
     <button @click="showDevices=!showDevices">{{showDevices?'hide':'show'}}</button>
+    <button @click="getComputed">GET COMPUTED</button>
     <ol v-if="showDevices">
-      <li v-for="d of devices" :key="d.id">{{d}}</li>
+      <li v-for="d of devices" :key="d.id">{{d}}
+        <p>COMPUTED: {{d.computed && d.computed.map(c => c.description).join(',')}}</p>
+      </li>
     </ol>
     <input type="button" value="ADD DEVICE" @click="addDevice">
   </div>
@@ -33,6 +39,7 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      userId: 0,
       file: null,
       showDevices: true,
       showGeofences: false
@@ -42,6 +49,12 @@ export default {
     ...mapGetters(['session', 'devices', 'geofences', 'groups'])
   },
   methods: {
+    devicesByUser () {
+      this.$store.dispatch('getDevices', this.userId)
+    },
+    getComputed () {
+      this.$store.dispatch('getComputed')
+    },
     addDevice () {
       this.$store.dispatch('addDevice', prompt('Device name?'))
     },
@@ -62,14 +75,6 @@ export default {
       }
       reader.onerror = (err) => console.log(err)
       reader.readAsText(this.file)
-    },
-
-    async processDevices () {
-      const devices = await this.$axios.$get('devices', { withCredentials: true })
-      for (const d of devices) {
-        d.category = 'truck'
-        await this.$axios.$put('devices' + d.id, d, { withCredentials: true })
-      }
     },
     async getDrivers () {
       const drivers = await this.$axios.$get('drivers', { withCredentials: true })

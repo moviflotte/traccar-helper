@@ -21,13 +21,25 @@ export const actions = {
     await this.$axios.$post('geofences', { name, area })
     commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
   },
-  async getUserData ({ commit }) {
+  async getDevices ({ commit }, userId) {
+    commit('SET_DEVICES', await this.$axios.$get('devices' + (userId ? `?userId=${userId}` : '')))
+  },
+  async getUserData ({ commit, dispatch }) {
+    await dispatch('getDevices')
     commit('SET_SESSION', await this.$axios.$get('session'))
-    commit('SET_DEVICES', await this.$axios.$get('devices'))
     commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
+  },
+  async getComputed ({ commit, state }) {
+    for (const d of state.devices) {
+      d.computed = await this.$axios.$get('/attributes/computed?deviceId=' + d.id)
+      commit('SET_DEVICE', d)
+    }
   }
 }
 export const mutations = {
+  SET_DEVICE (state, device) {
+    state.devices.splice(state.devices.indexOf(device), 1, device)
+  },
   SET_SESSION (state, session) {
     state.session = session
   },
