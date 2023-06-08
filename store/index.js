@@ -21,6 +21,9 @@ export const actions = {
     await this.$axios.$post('geofences', { name, area })
     commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
   },
+  async removeGeofence ({ commit }, geofenceId) {
+    await this.$axios.$delete('geofences/' + geofenceId)
+  },
   async getDevices ({ commit }, userId) {
     commit('SET_DEVICES', await this.$axios.$get('devices' + (userId ? `?userId=${userId}` : '')))
   },
@@ -47,6 +50,6 @@ export const mutations = {
     state.devices = devices
   },
   SET_GEOFENCES (state, geofences) {
-    state.geofences = geofences
+    state.geofences = geofences.sort((a, b) => a.name.localeCompare(b.name))
   }
 }
