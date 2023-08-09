@@ -17,10 +17,13 @@
     Add Geofence:
     <input ref="file" type="file" @change="addGeofence">
     <p></p>
-    {{geofences.length}} groups:
-    <ol>
-      <li v-for="d of groups" :key="d.id">group {{d}}</li>
+    {{groups.length}} groups:
+    <button @click="showGroups=!showGroups">{{showGroups?'Hide':'Show'}}</button>
+    <ol v-if="showGroups">
+      <li v-for="d of groups" :key="d.id"
+          :style="selectedGroups.includes(d.id)?'background-color: yellow':''">group {{d}}</li>
     </ol>
+    <p></p>
     {{devices.length}} devices:
     <button @click="showDevices=!showDevices">{{showDevices?'Hide':'Show'}}</button>
     <button @click="getComputed">Get Computed</button>
@@ -30,6 +33,10 @@
       </li>
     </ol>
     <input type="button" value="Add Device" @click="addDevice">
+    <p></p>
+    <textarea v-model="expression"></textarea>
+    <input type="text" v-model="deviceId">
+    <input type="button" value="Test Computed" @click="testComputed">
   </div>
 </template>
 
@@ -41,17 +48,24 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      deviceId: 0,
       userId: 0,
+      expression: '',
       file: null,
       showDevices: false,
+      showGroups: false,
       showGeofences: false,
-      selectedGeofences: []
+      selectedGeofences: [],
+      selectedGroups: []
     }
   },
   computed: {
     ...mapGetters(['session', 'devices', 'geofences', 'groups'])
   },
   methods: {
+    testComputed () {
+      this.$axios.$post('attributes/computed/test?deviceId=' + this.deviceId, { expression: this.expression, type: 'string' })
+    },
     toggleSelectedGeofence (g) {
       if (this.selectedGeofences.includes(g)) {
         this.selectedGeofences.splice(this.selectedGeofences.indexOf(g), 1)

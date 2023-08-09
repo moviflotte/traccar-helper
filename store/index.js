@@ -31,6 +31,7 @@ export const actions = {
     await dispatch('getDevices')
     commit('SET_SESSION', await this.$axios.$get('session'))
     commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
+    commit('SET_GROUPS', await this.$axios.$get('groups'))
   },
   async getComputed ({ commit, state }) {
     for (const d of state.devices) {
@@ -48,6 +49,9 @@ export const mutations = {
   },
   SET_DEVICES (state, devices) {
     state.devices = devices
+  },
+  SET_GROUPS (state, groups) {
+    state.groups = groups
   },
   SET_GEOFENCES (state, geofences) {
     state.geofences = geofences.sort((a, b) => a.name.localeCompare(b.name))
