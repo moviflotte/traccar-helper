@@ -8,6 +8,7 @@
     </p>
     {{geofences.length}} geofences:
     <button @click="showGeofences=!showGeofences">{{showGeofences?'Hide':'Show'}}</button>
+    <button @click="selectedGeofences = geofences.map(g => g.id)">Select all</button>
     <ol v-if="showGeofences">
       <li v-for="d of geofences" :key="d.id" @click="toggleSelectedGeofence(d.id)"
           :style="selectedGeofences.includes(d.id)?'background-color: yellow':''">{{d.name}} {{d.attributes}}</li>
