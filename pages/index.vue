@@ -15,6 +15,8 @@
     </ol>
     <input @click="removeGeofences" :value="`Delete selected (${selectedGeofences.length})`" type="button">
     <p></p>
+    <input @click="removeDuplicated" value="Delete duplicated" type="button">
+    <p></p>
     Add Geofence:
     <input ref="file" type="file" @change="addGeofence">
     <p></p>
@@ -86,6 +88,19 @@ export default {
     async removeGeofences () {
       for (const g of this.selectedGeofences) {
         await this.$store.dispatch('removeGeofence', g)
+      }
+    },
+    async removeDuplicated () {
+      const toRemove = []
+      this.geofences.forEach((g, i, a) => {
+        if (g !== a.find(e => e.name === g.name)) {
+          toRemove.push(g)
+        }
+      })
+      console.log('found', toRemove.length, 'duplicates')
+      for (const g of toRemove) {
+        console.log('removing', g.name)
+        await this.$store.dispatch('removeGeofence', g.id)
       }
     },
     addGeofence () {
