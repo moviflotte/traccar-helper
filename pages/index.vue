@@ -17,8 +17,11 @@
     <p></p>
     <input @click="removeDuplicated" value="Delete duplicated" type="button">
     <p></p>
-    Add Geofence:
+    Add Geofence from GeoJSON:
     <input ref="file" type="file" @change="addGeofence">
+    <p></p>
+    Add Geofences from CSV:
+    <input ref="csv" type="file" @change="addGeofencesFromCSV">
     <p></p>
     {{groups.length}} groups:
     <button @click="showGroups=!showGroups">{{showGroups?'Hide':'Show'}}</button>
@@ -31,7 +34,7 @@
     <button @click="showDevices=!showDevices">{{showDevices?'Hide':'Show'}}</button>
     <button @click="getComputed">Get Computed</button>
     <ol v-if="showDevices">
-      <li v-for="d of devices" :key="d.id">{{d}}
+      <li v-for="d of devices" :key="d.id">{{d.name}}<p>{{d}}</p>
         <p>COMPUTED: {{d.computed && d.computed.map(c => c.description).join(',')}}</p>
       </li>
     </ol>
@@ -123,6 +126,30 @@ export default {
           }
           console.log(area)
           await this.$store.dispatch('addGeofence', { name, area })
+        }
+      }
+      reader.onerror = (err) => console.log(err)
+      reader.readAsText(this.file)
+    },
+    addGeofencesFromCSV () {
+      this.file = this.$refs.csv.files[0]
+      const reader = new FileReader()
+      reader.onload = async (res) => {
+        const content = res.target.result
+        for (const line of content.split('\n')) {
+          const fields = line.split(';')
+          const area = `CIRCLE (${fields[2]} ${fields[3]}, 100)`
+          const name = fields[0] + ' - ' + fields[1]
+          try {
+            if (!this.geofences.find(g => g.name === name)) {
+              console.log(name, area)
+              await this.$store.dispatch('addGeofence', { name, area })
+            } else {
+              console.log('ignoring', name)
+            }
+          } catch (e) {
+            console.error(e)
+          }
         }
       }
       reader.onerror = (err) => console.log(err)
