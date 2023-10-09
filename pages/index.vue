@@ -47,6 +47,12 @@
     <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max*100).toFixed(1)}}%)
       {{log}}
     </p>
+    <div>
+      updated: {{updated}}<br>
+      inserted: {{inserted}}<br>
+      ignored: {{ignored}}<br>
+      error: {{error}}
+    </div>
   </div>
 </template>
 
@@ -58,7 +64,11 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      error: 0,
       max: 0,
+      updated: 0,
+      inserted: 0,
+      ignored: 0,
       progress: 0,
       deviceId: 0,
       userId: 0,
@@ -151,16 +161,20 @@ export default {
             if (!geofence) {
               await this.$store.dispatch('addGeofence', { name, area })
               this.log = 'inserted'
+              this.inserted++
             } else {
               if (area !== geofence.area) {
                 await this.$store.dispatch('updateGeofence', geofence.id)
                 this.log = `updated ${geofence.name}`
+                this.updated++
               } else {
                 this.log = `ignored ${geofence.name}`
+                this.ignored++
               }
             }
           } catch (e) {
             console.error(e)
+            this.error++
           }
         }
       }
