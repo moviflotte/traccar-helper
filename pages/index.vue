@@ -141,11 +141,11 @@ export default {
           const area = `CIRCLE (${fields[2]} ${fields[3]}, 100)`
           const name = fields[0] + ' - ' + fields[1]
           try {
-            if (!this.geofences.find(g => g.name === name)) {
-              console.log(name, area)
+            const geofence = this.geofences.find(g => g.name === name)
+            if (!geofence) {
               await this.$store.dispatch('addGeofence', { name, area })
             } else {
-              console.log('ignoring', name)
+              await this.$store.dispatch('removeGeofence', geofence.id)
             }
           } catch (e) {
             console.error(e)
