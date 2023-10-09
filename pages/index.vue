@@ -43,6 +43,9 @@
     <textarea v-model="expression"></textarea>
     <input type="text" v-model="deviceId">
     <input type="button" value="Test Computed" @click="testComputed">
+    <p>
+    <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max).toFixed(2)}}%)
+    </p>
   </div>
 </template>
 
@@ -54,6 +57,8 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      max: 0,
+      progress: 0,
       deviceId: 0,
       userId: 0,
       expression: '',
@@ -112,16 +117,12 @@ export default {
       const reader = new FileReader()
       reader.onload = async (res) => {
         const content = JSON.parse(res.target.result)
-        console.log('json', content)
         for (const feature of content.features) {
           let area
-          console.log('feature', feature)
           if (feature.geometry.type === 'Point') {
             area = `CIRCLE (${feature.geometry.coordinates[1].toFixed(6)} ${feature.geometry.coordinates[0].toFixed(6)}, 100)`
           } else {
             feature.geometry.coordinates = feature.geometry.coordinates.map(c => [c[1].toFixed(6), c[0].toFixed(6)])
-            const geojson = stringify(feature)
-            console.log('geojson', geojson)
             area = stringify(feature)
           }
           console.log(area)
@@ -136,7 +137,10 @@ export default {
       const reader = new FileReader()
       reader.onload = async (res) => {
         const content = res.target.result
-        for (const line of content.split('\n')) {
+        const lines = content.split('\n')
+        this.max = lines.length
+        for (const line of lines) {
+          this.progress++
           const fields = line.split(';')
           const area = `CIRCLE (${fields[2]} ${fields[3]}, 100)`
           const name = fields[0] + ' - ' + fields[1]
