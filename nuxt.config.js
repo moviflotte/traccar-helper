@@ -7,7 +7,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'traccar-helper',
+    title: 'traccar-helper ' + process.env.npm_package_version,
     htmlAttrs: {
       lang: 'en'
     },
