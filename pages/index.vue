@@ -45,6 +45,7 @@
     <input type="button" value="Test Computed" @click="testComputed">
     <p>
     <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max).toFixed(2)}}%)
+      {{log}}
     </p>
   </div>
 </template>
@@ -67,7 +68,8 @@ export default {
       showGroups: false,
       showGeofences: false,
       selectedGeofences: [],
-      selectedGroups: []
+      selectedGroups: [],
+      log: ''
     }
   },
   computed: {
@@ -148,8 +150,14 @@ export default {
             const geofence = this.geofences.find(g => g.name === name)
             if (!geofence) {
               await this.$store.dispatch('addGeofence', { name, area })
+              this.log = 'inserted'
             } else {
-              await this.$store.dispatch('removeGeofence', geofence.id)
+              if (area !== geofence.area) {
+                await this.$store.dispatch('updateGeofence', geofence.id)
+                this.log = `updated ${geofence.name}`
+              } else {
+                this.log = `ignored ${geofence.name}`
+              }
             }
           } catch (e) {
             console.error(e)

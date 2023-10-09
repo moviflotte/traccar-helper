@@ -19,7 +19,9 @@ export const actions = {
   },
   async addGeofence ({ commit }, { name, area }) {
     await this.$axios.$post('geofences', { name, area })
-    commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
+  },
+  async updateGeofence ({ commit }, geofence) {
+    await this.$axios.$put('geofences/' + geofence.id, geofence)
   },
   async removeGeofence ({ commit }, geofenceId) {
     await this.$axios.$delete('geofences/' + geofenceId)
