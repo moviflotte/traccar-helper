@@ -44,7 +44,7 @@
     <input type="text" v-model="deviceId">
     <input type="button" value="Test Computed" @click="testComputed">
     <p>
-    <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max).toFixed(2)}}%)
+    <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max*100).toFixed(1)}}%)
       {{log}}
     </p>
   </div>
