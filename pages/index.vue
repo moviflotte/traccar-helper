@@ -53,6 +53,7 @@
       ignored: {{ignored}}<br>
       error: {{error}}
     </div>
+    <textarea readonly v-model="lastError" style="width: 50%; height: 100px"/>
   </div>
 </template>
 
@@ -64,6 +65,7 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      lastError: '',
       error: 0,
       max: 0,
       updated: 0,
@@ -175,6 +177,7 @@ export default {
           } catch (e) {
             console.error(e)
             this.error++
+            this.lastError += `${line}\n`
           }
         }
       }
