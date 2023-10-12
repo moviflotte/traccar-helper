@@ -156,8 +156,8 @@ export default {
         for (const line of lines) {
           this.progress++
           const fields = line.split(';')
-          const area = `CIRCLE (${fields[2]} ${fields[3]}, 100)`
-          const name = fields[0] + ' - ' + fields[1]
+          const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`
+          const name = fields[0]
           try {
             const geofence = this.geofences.find(g => g.name === name)
             if (!geofence) {
