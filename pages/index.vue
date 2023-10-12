@@ -2,10 +2,7 @@
   <div>
     user: {{this.session && this.session.email}} {{this.session && this.session.id}}
     <br/>
-    <p>
-      userid: <input type="text" v-model="userId">
-      <button @click="devicesByUser">Filter</button>
-    </p>
+    <p></p>
     {{geofences.length}} geofences:
     <button @click="showGeofences=!showGeofences">{{showGeofences?'Hide':'Show'}}</button>
     <button @click="selectedGeofences = geofences.map(g => g.id)">Select all</button>
@@ -20,29 +17,22 @@
     Add Geofence from GeoJSON:
     <input ref="file" type="file" @change="addGeofence">
     <p></p>
-    Add Geofences from CSV:
+    <select v-model="groupId">
+      <option v-for="d of groups" :key="d.id" :value="d.id"
+              :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
+    </select>
+    Geofences from CSV:
     <input ref="csv" type="file" @change="addGeofencesFromCSV">
     <p></p>
-    {{groups.length}} groups:
-    <button @click="showGroups=!showGroups">{{showGroups?'Hide':'Show'}}</button>
-    <ol v-if="showGroups">
-      <li v-for="d of groups" :key="d.id"
-          :style="selectedGroups.includes(d.id)?'background-color: yellow':''">group {{d}}</li>
-    </ol>
     <p></p>
     {{devices.length}} devices:
     <button @click="showDevices=!showDevices">{{showDevices?'Hide':'Show'}}</button>
-    <button @click="getComputed">Get Computed</button>
     <ol v-if="showDevices">
       <li v-for="d of devices" :key="d.id">{{d.name}}<p>{{d}}</p>
         <p>COMPUTED: {{d.computed && d.computed.map(c => c.description).join(',')}}</p>
       </li>
     </ol>
-    <input type="button" value="Add Device" @click="addDevice">
     <p></p>
-    <textarea v-model="expression"></textarea>
-    <input type="text" v-model="deviceId">
-    <input type="button" value="Test Computed" @click="testComputed">
     <p>
     <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max*100).toFixed(1)}}%)
       {{log}}
@@ -65,6 +55,7 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      groupId: 0,
       lastError: '',
       error: 0,
       max: 0,
@@ -147,6 +138,10 @@ export default {
       reader.readAsText(this.file)
     },
     addGeofencesFromCSV () {
+      if (!this.groupId) {
+        alert('Please select group.')
+        return
+      }
       this.file = this.$refs.csv.files[0]
       const reader = new FileReader()
       reader.onload = async (res) => {
@@ -161,9 +156,10 @@ export default {
           try {
             const geofence = this.geofences.find(g => g.name === name)
             if (!geofence) {
-              await this.$store.dispatch('addGeofence', { name, area })
+              const geofence = await this.$store.dispatch('addGeofence', { name, area })
               this.log = 'inserted'
               this.inserted++
+              await this.$store.dispatch('addPermission', { groupId: this.groupId, geofenceId: geofence.id })
             } else {
               if (area !== geofence.area) {
                 await this.$store.dispatch('updateGeofence', geofence.id)

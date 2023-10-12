@@ -13,12 +13,15 @@ export const getters = {
 }
 
 export const actions = {
+  async addPermission ({ commit }, data) {
+    await this.$axios.$post('permissions', data)
+  },
   async addDevice ({ commit }, name) {
     await this.$axios.$post('devices', { name, uniqueId: name })
     commit('SET_DEVICES', await this.$axios.$get('devices'))
   },
   async addGeofence ({ commit }, { name, area }) {
-    await this.$axios.$post('geofences', { name, area })
+    return this.$axios.$post('geofences', { name, area })
   },
   async updateGeofence ({ commit }, geofence) {
     await this.$axios.$put('geofences/' + geofence.id, geofence)
