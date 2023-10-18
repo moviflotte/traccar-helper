@@ -43,7 +43,7 @@
       ignored: {{ignored}}<br>
       error: {{error}}
     </div>
-    <textarea readonly v-model="lastError" style="width: 50%; height: 100px"/>
+    <textarea readonly v-model="lastError" style="width: 100%; height: 300px"/>
   </div>
 </template>
 
@@ -143,41 +143,38 @@ export default {
         alert('Please select group.')
         return
       }
-      this.file = this.$refs.csv.files[0]
-      const reader = new FileReader()
-      reader.onload = async (res) => {
-        const { data } = Papa.parse(res.target.result)
-        this.max = data.length
-        for (const fields of data) {
-          this.progress++
-          const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`
-          const name = fields[0]
-          try {
-            const geofence = this.geofences.find(g => g.name === name)
-            if (!geofence) {
-              const geofence = await this.$store.dispatch('addGeofence', { name, area })
-              this.log = 'inserted'
-              this.inserted++
-              await this.$store.dispatch('addPermission', { groupId: this.groupId, geofenceId: geofence.id })
-            } else {
-              if (area !== geofence.area) {
-                await this.$store.dispatch('updateGeofence', geofence.id)
-                this.log = `updated ${geofence.name}`
-                this.updated++
+      Papa.parse(this.$refs.csv.files[0], {
+        complete: async ({ data }) => {
+          this.max = data.length
+          for (const fields of data) {
+            this.progress++
+            const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`
+            const name = fields[0]
+            try {
+              const geofence = this.geofences.find(g => g.name === name)
+              if (!geofence) {
+                const geofence = await this.$store.dispatch('addGeofence', { name, area })
+                this.log = 'inserted'
+                this.inserted++
+                await this.$store.dispatch('addPermission', { groupId: this.groupId, geofenceId: geofence.id })
               } else {
-                this.log = `ignored ${geofence.name}`
-                this.ignored++
+                if (area !== geofence.area) {
+                  await this.$store.dispatch('updateGeofence', geofence.id)
+                  this.log = `updated ${geofence.name}`
+                  this.updated++
+                } else {
+                  this.log = `ignored ${geofence.name}`
+                  this.ignored++
+                }
               }
+            } catch (e) {
+              console.error(e)
+              this.error++
+              this.lastError += `${e.message}: ${fields}\n`
             }
-          } catch (e) {
-            console.error(e)
-            this.error++
-            this.lastError += `${fields}\n`
           }
         }
-      }
-      reader.onerror = (err) => console.log(err)
-      reader.readAsText(this.file)
+      })
     }
   },
   async mounted () {
