@@ -159,7 +159,7 @@ export default {
                 await this.$store.dispatch('addPermission', { groupId: this.groupId, geofenceId: geofence.id })
               } else {
                 if (area !== geofence.area) {
-                  await this.$store.dispatch('updateGeofence', geofence.id)
+                  await this.$store.dispatch('updateGeofence', geofence)
                   this.log = `updated ${geofence.name}`
                   this.updated++
                 } else {
