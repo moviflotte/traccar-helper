@@ -21,7 +21,7 @@
       <option v-for="d of groups" :key="d.id" :value="d.id"
               :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
     </select>
-    Geofences from CSV:
+    Geofences from CSV (name,latitude,longitude):
     <input ref="csv" type="file" @change="addGeofencesFromCSV">
     <p></p>
     <p></p>
@@ -50,6 +50,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { stringify } from 'wellknown'
+import Papa from 'papaparse'
 
 export default {
   name: 'IndexPage',
@@ -145,12 +146,10 @@ export default {
       this.file = this.$refs.csv.files[0]
       const reader = new FileReader()
       reader.onload = async (res) => {
-        const content = res.target.result
-        const lines = content.split('\n')
-        this.max = lines.length
-        for (const line of lines) {
+        const { data } = Papa.parse(res.target.result)
+        this.max = data.length
+        for (const fields of data) {
           this.progress++
-          const fields = line.split(';')
           const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`
           const name = fields[0]
           try {
@@ -173,7 +172,7 @@ export default {
           } catch (e) {
             console.error(e)
             this.error++
-            this.lastError += `${line}\n`
+            this.lastError += `${fields}\n`
           }
         }
       }
