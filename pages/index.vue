@@ -21,7 +21,7 @@
       <option v-for="d of groups" :key="d.id" :value="d.id"
               :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
     </select>
-    Geofences from CSV (name;latitude;longitude):
+    POIs from CSV (name;latitude;longitude):
     <input ref="csv" type="file" @change="addGeofencesFromCSV">
     <p></p>
     <p></p>
