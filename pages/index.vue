@@ -96,9 +96,7 @@ export default {
       }
       const userGroups = this.users.map(u => u.groups.map(g => `${g.id}([${this.safeName(g.name)}]) --- ${u.id}((${u.name}))`)).flat()
       const userDevices = this.users.filter(u => u.id !== this.session.id).map(u => u.devices.map(d => `${d.id}[${this.safeName(d.name)}] --- ${u.id}((${u.name}))`)).flat()
-      const r = `flowchart LR\n\t${devices.join('\n\t')}\n\t${userGroups.join('\n\t')}\n\t${userDevices.join('\n\t')}`
-      console.log(r)
-      return r
+      return `flowchart LR\n\t${devices.join('\n\t')}\n\t${userGroups.join('\n\t')}\n\t${userDevices.join('\n\t')}`
     },
     testComputed () {
       this.$axios.$post('attributes/computed/test?deviceId=' + this.deviceId, { expression: this.expression, type: 'string' })
