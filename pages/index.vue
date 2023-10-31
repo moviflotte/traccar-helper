@@ -90,10 +90,9 @@ export default {
       this.devices.forEach(d => { d.group = this.groups.find(g => g.id === d.groupId) })
       const devices = this.devices.filter(d => d.group && d.group.name).map(d => `${d.id}[${this.safeName(d.name)}] --> ${d.group.id}([${
         this.safeName(d.group.name)}])`)
-      const i = 0
       this.max = this.users.length
       for (const u of this.users) {
-        this.progress = i / this.max
+        this.progress ++
         u.groups = await this.$axios.$get('groups?userId=' + u.id)
         u.devices = await this.$axios.$get('devices?userId=' + u.id)
       }
