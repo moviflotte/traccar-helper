@@ -93,13 +93,17 @@ export default {
   methods: {
     async getGraph () {
       this.devices.forEach(d => { d.group = this.groups.find(g => g.id === d.groupId) })
-      const devices = this.devices.map(d => `${d.id}[${d.name.replace(/[(,)]/g, '')}] --> ${d.groupId || -1}([${
-        (d.group && d.group.name.replace(/[(,)]/g, '')) || 'nogroup'}])`)
+      const devices = this.devices.filter(d => d.groupId).map(d => `${d.id}[${d.name.replace(/[(,)]/g, '')}] ${
+        d.group && d.group.name ? ' --> ([' + d.group.name.replace(/[(,)]/g, '') + '])' : ''}`)
       for (const u of this.users) {
         u.groups = await this.$axios.$get('groups?userId=' + u.id)
+        u.devices = await this.$axios.$get('devices?userId=' + u.id)
       }
-      const users = this.users.map(u => u.groups.map(g => `${g.id}([${(g.name)}]) --- ${u.id}((${u.name}))`)).flat()
-      return `flowchart LR\n\t${devices.slice(0, 100).join('\n\t')}\n\t${users.slice(0, 100).join('\n\t')}`
+      const userGroups = this.users.map(u => u.groups.map(g => `${g.id}([${(g.name)}]) --- ${u.id}((${u.name}))`)).flat()
+      const userDevices = this.users.filter(u => u.id !== this.session.id).map(u => u.devices.map(d => `${d.id}[${(d.name)}] --- ${u.id}((${u.name}))`)).flat()
+      const r = `flowchart LR\n\t${devices.join('\n\t')}\n\t${userGroups.join('\n\t')}\n\t${userDevices.join('\n\t')}`
+      console.log(r)
+      return r
     },
     testComputed () {
       this.$axios.$post('attributes/computed/test?deviceId=' + this.deviceId, { expression: this.expression, type: 'string' })
