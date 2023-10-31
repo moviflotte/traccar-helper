@@ -44,6 +44,8 @@
       error: {{error}}
     </div>
     <textarea readonly v-model="lastError" style="width: 100%; height: 300px"/>
+    <vue-mermaid-string v-if="graph" :value="graph" :options="{ maxTextSize: 10000000000000 }" >
+    </vue-mermaid-string>
   </div>
 </template>
 
@@ -57,6 +59,7 @@ export default {
   data () {
     return {
       groupId: 0,
+      graph: '',
       lastError: '',
       error: 0,
       max: 0,
@@ -77,9 +80,26 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['session', 'devices', 'geofences', 'groups'])
+    ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users'])
   },
   methods: {
+    safeName (name) {
+      return name.replace(/[()]/g, '')
+    },
+    async getGraph () {
+      this.devices.forEach(d => { d.group = this.groups.find(g => g.id === d.groupId) })
+      const devices = this.devices.filter(d => d.group && d.group.name).map(d => `${d.id}[${this.safeName(d.name)}] --> ${d.group.id}([${
+        this.safeName(d.group.name)}])`)
+      for (const u of this.users) {
+        u.groups = await this.$axios.$get('groups?userId=' + u.id)
+        u.devices = await this.$axios.$get('devices?userId=' + u.id)
+      }
+      const userGroups = this.users.map(u => u.groups.map(g => `${g.id}([${this.safeName(g.name)}]) --- ${u.id}((${u.name}))`)).flat()
+      const userDevices = this.users.filter(u => u.id !== this.session.id).map(u => u.devices.map(d => `${d.id}[${this.safeName(d.name)}] --- ${u.id}((${u.name}))`)).flat()
+      const r = `flowchart LR\n\t${devices.join('\n\t')}\n\t${userGroups.join('\n\t')}\n\t${userDevices.join('\n\t')}`
+      console.log(r)
+      return r
+    },
     testComputed () {
       this.$axios.$post('attributes/computed/test?deviceId=' + this.deviceId, { expression: this.expression, type: 'string' })
     },
@@ -179,6 +199,7 @@ export default {
   },
   async mounted () {
     await this.$store.dispatch('getUserData')
+    this.graph = await this.getGraph()
   }
 }
 </script>
