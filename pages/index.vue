@@ -44,8 +44,6 @@
       error: {{error}}
     </div>
     <textarea readonly v-model="lastError" style="width: 100%; height: 300px"/>
-    <vue-mermaid-string v-if="graph" :value="graph" :options="{ maxTextSize: 10000000000000 }" >
-    </vue-mermaid-string>
   </div>
 </template>
 
@@ -92,7 +90,7 @@ export default {
         this.safeName(d.group.name)}])`)
       this.max = this.users.length
       for (const u of this.users) {
-        this.progress ++
+        this.progress++
         u.groups = await this.$axios.$get('groups?userId=' + u.id)
         u.devices = await this.$axios.$get('devices?userId=' + u.id)
       }
