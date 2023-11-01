@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
+    "@observablehq/plot": "^0.6.11",
     "core-js": "3.33.0",
     "nuxt": "^2.15.8",
     "papaparse": "^5.4.1",

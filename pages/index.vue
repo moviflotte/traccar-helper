@@ -81,23 +81,6 @@ export default {
     ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users'])
   },
   methods: {
-    safeName (name) {
-      return name.replace(/[()]/g, '')
-    },
-    async getGraph () {
-      this.devices.forEach(d => { d.group = this.groups.find(g => g.id === d.groupId) })
-      const devices = this.devices.filter(d => d.group && d.group.name).map(d => `${d.id}[${this.safeName(d.name)}] --> ${d.group.id}([${
-        this.safeName(d.group.name)}])`)
-      this.max = this.users.length
-      for (const u of this.users) {
-        this.progress++
-        u.groups = await this.$axios.$get('groups?userId=' + u.id)
-        u.devices = await this.$axios.$get('devices?userId=' + u.id)
-      }
-      const userGroups = this.users.map(u => u.groups.map(g => `${g.id}([${this.safeName(g.name)}]) --- ${u.id}((${u.name}))`)).flat()
-      const userDevices = this.users.filter(u => u.id !== this.session.id).map(u => u.devices.map(d => `${d.id}[${this.safeName(d.name)}] --- ${u.id}((${u.name}))`)).flat()
-      return `flowchart LR\n\t${devices.join('\n\t')}\n\t${userGroups.join('\n\t')}\n\t${userDevices.join('\n\t')}`
-    },
     testComputed () {
       this.$axios.$post('attributes/computed/test?deviceId=' + this.deviceId, { expression: this.expression, type: 'string' })
     },
@@ -197,7 +180,6 @@ export default {
   },
   async mounted () {
     await this.$store.dispatch('getUserData')
-    this.graph = await this.getGraph()
   }
 }
 </script>
