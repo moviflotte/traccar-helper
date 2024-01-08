@@ -168,8 +168,8 @@ export default {
           this.max = data.length
           for (const fields of data) {
             this.progress++
-            const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`
-            const name = fields[0]
+            const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`          
+            const name = fields[0].replace(/[^\x00-\x7F]/g, '')
             try {
               const geofence = this.geofences.find(g => g.name === name)
               if (!geofence) {
