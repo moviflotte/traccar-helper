@@ -190,7 +190,7 @@ export default {
             } catch (e) {
               console.error(e)
               this.error++
-              this.lastError += `${(e.response && e.response.data) || e.message}: ${fields}\n`
+              this.lastError += `${fields}\n${(e.response && e.response.data) || e.message}\n`
             }
           }
         }
