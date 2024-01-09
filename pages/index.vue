@@ -21,7 +21,7 @@
       <option v-for="d of groups" :key="d.id" :value="d.id"
               :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
     </select>
-    POIs from CSV (name;latitude;longitude):
+    POIs from CSV (name;latitude;longitude;radius;description):
     <input ref="csv" type="file" @change="addGeofencesFromCSV">
     <p></p>
     <p></p>
@@ -168,12 +168,13 @@ export default {
           this.max = data.length
           for (const fields of data) {
             this.progress++
-            const area = `CIRCLE (${fields[1]} ${fields[2]}, 100)`          
+            const area = `CIRCLE (${fields[1]} ${fields[2]}, ${fields[3] || 100})`          
             const name = fields[0].replace(/[^\x00-\x7F]/g, '')
+            const description = (fields[4] && fields[4].replace(/[^\x00-\x7F]/g, '')) || ''
             try {
               const geofence = this.geofences.find(g => g.name === name)
               if (!geofence) {
-                const geofence = await this.$store.dispatch('addGeofence', { name, area })
+                const geofence = await this.$store.dispatch('addGeofence', { name, area, description })
                 this.log = 'inserted'
                 this.inserted++
                 await this.$store.dispatch('addPermission', { groupId: this.groupId, geofenceId: geofence.id })
