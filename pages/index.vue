@@ -38,10 +38,10 @@
       {{log}}
     </p>
     <div>
-      updated: {{updated}}<br>
-      inserted: {{inserted}}<br>
-      ignored: {{ignored}}<br>
-      error: {{error}}
+      updated: {{updated}}<br>{{updatedGeofences.join(';')}}<br>
+      <br>inserted: {{inserted}}<br>
+      <br>ignored: {{ignored}}<br>{{ignoredGeofences.join(';')}}<br>
+      <br>error: {{error}}
     </div>
     <textarea readonly v-model="lastError" style="width: 100%; height: 300px"/>
     <vue-mermaid-string v-if="graph" :value="graph" :options="{ maxTextSize: 10000000000000 }" >
@@ -64,6 +64,8 @@ export default {
       error: 0,
       max: 0,
       updated: 0,
+      updatedGeofences: [],
+      ignoredGeofences: [],
       inserted: 0,
       ignored: 0,
       progress: 0,
@@ -185,9 +187,11 @@ export default {
                 if (area !== geofence.area) {
                   await this.$store.dispatch('updateGeofence', geofence)
                   this.log = `updated ${geofence.name}`
+                  this.updatedGeofences.push(geofence.name)
                   this.updated++
                 } else {
                   this.log = `ignored ${geofence.name}`
+                  this.ignoredGeofences.push(geofence.name)
                   this.ignored++
                 }
               }

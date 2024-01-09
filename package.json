@@ -1,6 +1,6 @@
 {
   "name": "traccar-helper",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
-    "core-js": "3.33.0",
+    "core-js": "3.35.0",
     "nuxt": "^2.15.8",
     "papaparse": "^5.4.1",
     "nuxt-mermaid-string": "2.0.12",
