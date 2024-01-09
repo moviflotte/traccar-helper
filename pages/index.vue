@@ -92,7 +92,7 @@ export default {
         this.safeName(d.group.name)}])`)
       this.max = this.users.length
       for (const u of this.users) {
-        this.progress ++
+        this.progress++
         u.groups = await this.$axios.$get('groups?userId=' + u.id)
         u.devices = await this.$axios.$get('devices?userId=' + u.id)
       }
@@ -168,8 +168,11 @@ export default {
           this.max = data.length
           for (const fields of data) {
             this.progress++
-            const area = `CIRCLE (${fields[1]} ${fields[2]}, ${fields[3] || 100})`          
+            if (fields.length < 3) continue
+            const area = `CIRCLE (${fields[1]} ${fields[2]}, ${fields[3] || 100})`
+            // eslint-disable-next-line no-control-regex
             const name = fields[0].replace(/[^\x00-\x7F]/g, '')
+            // eslint-disable-next-line no-control-regex
             const description = (fields[4] && fields[4].replace(/[^\x00-\x7F]/g, '')) || ''
             try {
               const geofence = this.geofences.find(g => g.name === name)
