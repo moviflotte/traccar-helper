@@ -26,17 +26,17 @@ export const actions = {
     await this.$axios.$post('devices', { name, uniqueId: name })
     commit('SET_DEVICES', await this.$axios.$get('devices'))
   },
-  async addGeofence ({ commit }, { name, area, description }) {
+  addGeofence ({ commit }, { name, area, description }) {
     return this.$axios.$post('geofences', { name, area, description })
   },
-  async updateGeofence ({ commit }, geofence) {
-    await this.$axios.$put('geofences/' + geofence.id, geofence)
+  updateGeofence ({ commit }, geofence) {
+    return this.$axios.$put('geofences/' + geofence.id, geofence)
   },
-  async removeGeofence ({ commit }, geofenceId) {
-    await this.$axios.$delete('geofences/' + geofenceId)
+  removeGeofence ({ commit }, geofenceId) {
+    return this.$axios.$delete('geofences/' + geofenceId)
   },
-  async removeGeofences ({ commit }, geofenceIds) {
-    await this.$axios.$delete(`../reports/geofences/bulk/delete?${geofenceIds.map(id => `id=${id}`).join('&')}`)
+  removeGeofences ({ commit }, geofenceIds) {
+    return this.$axios.$delete('../reports/geofences/bulk/delete', geofenceIds)
   },
   async getDevices ({ commit }, userId) {
     commit('SET_DEVICES', await this.$axios.$get('devices' + (userId ? `?userId=${userId}` : '')))

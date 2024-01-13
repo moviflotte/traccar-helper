@@ -124,12 +124,11 @@ export default {
         if (toRemove.length === 0) {
           alert('No duplicates found')
         } else if (confirm('Remove ' + toRemove.length + ' duplicates?')) {
-          const chunk = 1000
+          const chunk = 4000
           this.max = toRemove.length
           for (this.progress = 0; this.progress < toRemove.length; this.progress += chunk) {
             await this.$store.dispatch('removeGeofences', toRemove.slice(this.progress, chunk).map(g => g.id))
           }
-          await this.$store.dispatch('removeGeofences', toRemove.map(g => g.id))
         }
       } catch (e) {
         console.error(e)
