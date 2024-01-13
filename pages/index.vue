@@ -48,8 +48,6 @@
       <br>error: {{error}}
     </div>
     <textarea readonly v-model="lastError" style="width: 100%; height: 300px"/>
-    <vue-mermaid-string v-if="graph" :value="graph" :options="{ maxTextSize: 10000000000000 }" >
-    </vue-mermaid-string>
   </div>
 </template>
 
@@ -214,8 +212,9 @@ export default {
     }
   },
   async mounted () {
+    this.loading = true
     await this.$store.dispatch('getUserData')
-    this.graph = await this.getGraph()
+    this.loading = false
   }
 }
 </script>
