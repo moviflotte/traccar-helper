@@ -120,14 +120,14 @@ export default {
         this.loading = true
         const toRemove = []
         const geofences = await this.$axios.$get('geofences')
-        geofences.forEach(g => { if (g !== geofences.find(e => e.name === g.name)) { toRemove.push(g) } })
+        geofences.forEach(g => { if (g !== geofences.find(e => e.name === g.name)) { toRemove.push(g.id) } })
         if (toRemove.length === 0) {
           alert('No duplicates found')
         } else if (confirm('Remove ' + toRemove.length + ' duplicates?')) {
           const chunk = 4000
           this.max = toRemove.length
           for (this.progress = 0; this.progress < toRemove.length; this.progress += chunk) {
-            await this.$store.dispatch('removeGeofences', toRemove.slice(this.progress, chunk).map(g => g.id))
+            await this.$store.dispatch('removeGeofences', toRemove.slice(this.progress, this.progress + chunk))
           }
         }
       } catch (e) {
