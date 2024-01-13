@@ -133,7 +133,8 @@ export default {
       try {
         this.loading = true
         const toRemove = []
-        this.geofences.forEach(g => { if (g !== this.geofences.find(e => e.name === g.name)) { toRemove.push(g) } })
+        const geofences = await this.$axios.$get('geofences')
+        geofences.forEach(g => { if (g !== geofences.find(e => e.name === g.name)) { toRemove.push(g) } })
         if (toRemove.length === 0) {
           alert('No duplicates found')
         } else if (confirm('Remove ' + toRemove.length + ' duplicates?')) {
