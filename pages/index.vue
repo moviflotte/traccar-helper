@@ -12,11 +12,13 @@
     <button @click="selectedGeofences = geofences.map(g => g.id)">Select all</button>
     <ol v-if="showGeofences">
       <li v-for="d of geofences" :key="d.id" @click="toggleSelectedGeofence(d.id)"
-          :style="selectedGeofences.includes(d.id)?'background-color: yellow':''">{{d.name}} {{d.id}} {{d.attributes}}</li>
+          :style="selectedGeofences.includes(d.id)?'background-color: yellow':''">{{d.name}} {{d.id}} {{d.attributes}} {{d.area}}</li>
     </ol>
     <input @click="removeGeofences" :value="`Delete selected (${selectedGeofences.length})`" type="button">
     <p></p>
     <input @click="removeDuplicated" value="Delete duplicated" type="button">
+    <p></p>
+    <input @click="removeInvalid" value="Delete invalid" type="button">
     <p></p>
     Add Geofence from GeoJSON:
     <input ref="file" type="file" @change="addGeofence">
@@ -115,6 +117,26 @@ export default {
         await this.$store.dispatch('removeGeofence', g)
       }
     },
+    async removeInvalid () {
+      try {
+        this.loading = true
+        const geofences = await this.$axios.$get('geofences')
+        const toRemove = geofences.filter(g => !g.area || g.area === 'CIRCLE (0 0, 0)').map(g => g.id)
+        if (toRemove.length === 0) {
+          alert('No invalid found')
+        } else if (confirm('Remove ' + toRemove.length + ' duplicates?')) {
+          const chunk = 4000
+          this.max = toRemove.length
+          for (this.progress = 0; this.progress < toRemove.length; this.progress += chunk) {
+            await this.$store.dispatch('removeGeofences', toRemove.slice(this.progress, this.progress + chunk))
+          }
+        }
+      } catch (e) {
+        console.error(e)
+        alert((e.response && e.response.data) || e.message || e)
+      }
+      this.loading = false
+    },
     async removeDuplicated () {
       try {
         this.loading = true
@@ -129,6 +151,7 @@ export default {
           for (this.progress = 0; this.progress < toRemove.length; this.progress += chunk) {
             await this.$store.dispatch('removeGeofences', toRemove.slice(this.progress, this.progress + chunk))
           }
+          this.progress = this.max
         }
       } catch (e) {
         console.error(e)
