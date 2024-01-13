@@ -1,14 +1,18 @@
 <template>
   <div>
+    <div id="loader" v-if="loading"></div>
+    <div style="display: flex; justify-content: center;">
+      <img src="https://www.movitec.ma/web/image/website/1/logo/My%20Website?unique=1f550a5" width="40%" style="padding: 10px">
+    </div>
     user: {{this.session && this.session.email}} {{this.session && this.session.id}}
     <br/>
     <p></p>
-    {{geofences.length}} geofences:
+    {{geofencesLength}} geofences:
     <button @click="showGeofences=!showGeofences">{{showGeofences?'Hide':'Show'}}</button>
     <button @click="selectedGeofences = geofences.map(g => g.id)">Select all</button>
     <ol v-if="showGeofences">
       <li v-for="d of geofences" :key="d.id" @click="toggleSelectedGeofence(d.id)"
-          :style="selectedGeofences.includes(d.id)?'background-color: yellow':''">{{d.name}} {{d.attributes}}</li>
+          :style="selectedGeofences.includes(d.id)?'background-color: yellow':''">{{d.name}} {{d.id}} {{d.attributes}}</li>
     </ol>
     <input @click="removeGeofences" :value="`Delete selected (${selectedGeofences.length})`" type="button">
     <p></p>
@@ -58,6 +62,7 @@ export default {
   name: 'IndexPage',
   data () {
     return {
+      loading: false,
       groupId: 0,
       graph: '',
       lastError: '',
@@ -82,7 +87,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users'])
+    ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users', 'geofencesLength'])
   },
   methods: {
     safeName (name) {
@@ -127,17 +132,20 @@ export default {
       }
     },
     async removeDuplicated () {
-      const toRemove = []
-      this.geofences.forEach((g, i, a) => {
-        if (g !== a.find(e => e.name === g.name)) {
-          toRemove.push(g)
+      try {
+        this.loading = true
+        const toRemove = []
+        this.geofences.forEach(g => { if (g !== this.geofences.find(e => e.name === g.name)) { toRemove.push(g) } })
+        if (toRemove.length === 0) {
+          alert('No duplicates found')
+        } else if (confirm('Remove ' + toRemove.length + ' duplicates?')) {
+          await this.$store.dispatch('removeGeofences', toRemove.map(g => g.id))
         }
-      })
-      console.log('found', toRemove.length, 'duplicates')
-      for (const g of toRemove) {
-        console.log('removing', g.name)
-        await this.$store.dispatch('removeGeofence', g.id)
+      } catch (e) {
+        console.error(e)
+        alert((e.response && e.response.data) || e.message || e)
       }
+      this.loading = false
     },
     addGeofence () {
       const name = prompt('Name?')
@@ -211,3 +219,23 @@ export default {
   }
 }
 </script>
+<style>
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

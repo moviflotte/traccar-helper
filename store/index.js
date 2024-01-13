@@ -1,9 +1,12 @@
+const maxGeofences = 1000
+
 export const state = {
   session: null,
   devices: [],
   geofences: [],
   groups: [],
-  users: []
+  users: [],
+  geofencesLength: 0
 }
 
 export const getters = {
@@ -11,7 +14,8 @@ export const getters = {
   geofences: (state) => state.geofences,
   groups: (state) => state.groups,
   devices: (state) => state.devices,
-  users: (state) => state.users
+  users: (state) => state.users,
+  geofencesLength: (state) => state.geofencesLength
 }
 
 export const actions = {
@@ -31,15 +35,22 @@ export const actions = {
   async removeGeofence ({ commit }, geofenceId) {
     await this.$axios.$delete('geofences/' + geofenceId)
   },
+  async removeGeofences ({ commit }, geofenceIds) {
+    await this.$axios.$delete(`../reports/geofences/bulk/delete?${geofenceIds.map(id => `id=${id}`).join('&')}`)
+  },
   async getDevices ({ commit }, userId) {
     commit('SET_DEVICES', await this.$axios.$get('devices' + (userId ? `?userId=${userId}` : '')))
   },
   async getUserData ({ commit, dispatch }) {
-    await dispatch('getDevices')
-    commit('SET_SESSION', await this.$axios.$get('session'))
-    commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
-    commit('SET_GROUPS', await this.$axios.$get('groups'))
-    commit('SET_USERS', await this.$axios.$get('users'))
+    try {
+      await dispatch('getDevices')
+      commit('SET_SESSION', await this.$axios.$get('session'))
+      commit('SET_GEOFENCES', await this.$axios.$get('geofences'))
+      commit('SET_GROUPS', await this.$axios.$get('groups'))
+      commit('SET_USERS', await this.$axios.$get('users'))
+    } catch (e) {
+      alert((e.response && e.response.data) || e.message || e)
+    }
   },
   async getComputed ({ commit, state }) {
     for (const d of state.devices) {
@@ -65,6 +76,10 @@ export const mutations = {
     state.users = users
   },
   SET_GEOFENCES (state, geofences) {
-    state.geofences = geofences.sort((a, b) => a.name.localeCompare(b.name))
+    state.geofences = geofences.sort((a, b) => a.name.localeCompare(b.name)).slice(0, maxGeofences)
+    state.geofencesLength = geofences.length
+  },
+  SET_GEOFENCES_LENGTH (state, geofencesLength) {
+    state.geofencesLength = geofencesLength
   }
 }
