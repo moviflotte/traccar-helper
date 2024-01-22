@@ -113,9 +113,7 @@ export default {
       this.$store.dispatch('addDevice', prompt('Device name?'))
     },
     async removeGeofences () {
-      for (const g of this.selectedGeofences) {
-        await this.$store.dispatch('removeGeofence', g)
-      }
+      await this.$store.dispatch('removeGeofences', this.selectedGeofences)
     },
     async removeInvalid () {
       try {
