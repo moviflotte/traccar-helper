@@ -7,7 +7,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Moviflotte Backoffice ' + process.env.npm_package_version,
+    title: 'Import ' + process.env.npm_package_version,
     htmlAttrs: {
       lang: 'en'
     },
