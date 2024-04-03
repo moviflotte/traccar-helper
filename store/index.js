@@ -50,6 +50,7 @@ export const actions = {
       commit('SET_GROUPS', await this.$axios.$get('groups'))
       commit('SET_USERS', await this.$axios.$get('users'))
     } catch (e) {
+      console.error(e)
       alert((e.response && e.response.data) || e.message || e)
     }
   },
@@ -77,8 +78,10 @@ export const mutations = {
     state.users = users
   },
   SET_GEOFENCES (state, geofences) {
-    state.geofences = geofences.sort((a, b) => a.name.localeCompare(b.name)).slice(0, maxGeofences)
-    state.geofencesLength = geofences.length
+    if (Array.isArray(geofences)) {
+      state.geofences = geofences.sort((a, b) => a.name.localeCompare(b.name)).slice(0, maxGeofences)
+      state.geofencesLength = geofences.length
+    }
   },
   SET_GEOFENCES_LENGTH (state, geofencesLength) {
     state.geofencesLength = geofencesLength

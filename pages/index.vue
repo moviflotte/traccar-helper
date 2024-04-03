@@ -2,7 +2,7 @@
   <div>
     <div id="loader" v-if="loading"></div>
     <div style="display: flex; justify-content: center;">
-      <img :src="logo" width="40%" style="padding: 10px">
+      <img :src="logo" width="40%" style="padding: 10px" alt="logo">
     </div>
     user: {{this.session && this.session.email}} {{this.session && this.session.id}}
     <br/>
