@@ -7,7 +7,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Moviflotte Backoffice' + process.env.npm_package_version,
+    title: 'Moviflotte Backoffice ' + process.env.npm_package_version,
     htmlAttrs: {
       lang: 'en'
     },
@@ -48,7 +48,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: process.env.BASE_URL || 'http://localhost:8082/api',
+    baseURL: process.env.BASE_URL || '/api',
     credentials: true
   },
 
