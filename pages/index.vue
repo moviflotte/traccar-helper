@@ -2,7 +2,7 @@
   <div>
     <div id="loader" v-if="loading"></div>
     <div style="display: flex; justify-content: center;">
-      <img src="https://www.movitec.ma/web/image/website/1/logo/My%20Website?unique=1f550a5" width="40%" style="padding: 10px">
+      <img :src="logo" width="40%" style="padding: 10px">
     </div>
     user: {{this.session && this.session.email}} {{this.session && this.session.id}}
     <br/>
@@ -87,7 +87,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users', 'geofencesLength'])
+    ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users', 'geofencesLength']),
+    logo() {
+      return `https://${window.location.hostname}/img/logos/${window.location.hostname}.png`
+    }
   },
   methods: {
     safeName (name) {
