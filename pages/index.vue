@@ -4,7 +4,7 @@
     <div style="display: flex; justify-content: center;">
       <img :src="logo" width="40%" style="padding: 10px" alt="logo">
     </div>
-    user: {{this.session && this.session.email}} {{this.session && this.session.id}}
+    user: {{session && session.email}}
     <br/>
     <p></p>
     {{geofencesLength}} geofences:
@@ -30,14 +30,12 @@
     POIs from CSV (name;latitude;longitude;radius;description):
     <input ref="csv" type="file" @change="addGeofencesFromCSV">
     <p></p>
-    <p></p>
-    {{devices.length}} devices:
-    <button @click="showDevices=!showDevices">{{showDevices?'Hide':'Show'}}</button>
-    <ol v-if="showDevices">
-      <li v-for="d of devices" :key="d.id">{{d.name}}<p>{{d}}</p>
-        <p>COMPUTED: {{d.computed && d.computed.map(c => c.description).join(',')}}</p>
-      </li>
-    </ol>
+    <select v-model="groupId">
+      <option v-for="d of groups" :key="d.id" :value="d.id"
+              :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
+    </select>
+    POIs from CSV with addresses (name;address;description):
+    <input ref="addresses" type="file" @change="addGeofencesFromCSV">
     <p></p>
     <p>
     <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max*100).toFixed(1)}}%)
@@ -88,7 +86,7 @@ export default {
   },
   computed: {
     ...mapGetters(['session', 'devices', 'geofences', 'groups', 'users', 'geofencesLength']),
-    logo() {
+    logo () {
       return `https://${window.location.hostname}/img/logos/${window.location.hostname}.png`
     }
   },
@@ -183,20 +181,33 @@ export default {
       reader.onerror = (err) => console.log(err)
       reader.readAsText(this.file)
     },
-    addGeofencesFromCSV () {
+    addGeofencesFromCSV (addresses) {
       if (!this.groupId) {
         alert('Please select group.')
         return
       }
-      Papa.parse(this.$refs.csv.files[0], {
+      const axios = require('axios').create({ baseURL: 'https://maps.googleapis.com/maps/api/geocode' })
+      const file = this.$refs[addresses ? 'addresses' : 'csv'].files[0]
+      Papa.parse(file, {
         complete: async ({ data }) => {
           this.max = data.length
           for (const fields of data) {
             this.progress++
-            if (fields.length < 3) continue
+            if (fields.length < 3) { continue }
+            const name = fields[0].replace(/[^\x00-\x7F]/g, '')
+            if (addresses) {
+              const { results } = await axios.get(`json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${encodeURIComponent(fields[1])}`).then(d => d.data)
+              if (!results.length) {
+                this.pushIgnored(fields[0])
+              } else {
+                fields[1] = results[0].geometry.location.lat
+                fields[2] = results[0].geometry.location.lng
+                fields[4] = fields[3]
+                fields[3] = null
+              }
+            }
             const area = `CIRCLE (${fields[1]} ${fields[2]}, ${fields[3] || 100})`
             // eslint-disable-next-line no-control-regex
-            const name = fields[0].replace(/[^\x00-\x7F]/g, '')
             // eslint-disable-next-line no-control-regex
             const description = (fields[4] && fields[4].replace(/[^\x00-\x7F]/g, '')) || ''
             try {
@@ -213,9 +224,7 @@ export default {
                   this.updatedGeofences.push(geofence.name)
                   this.updated++
                 } else {
-                  this.log = `ignored ${geofence.name}`
-                  this.ignoredGeofences.push(geofence.name)
-                  this.ignored++
+                  this.pushIgnored(geofence.name)
                 }
               }
             } catch (e) {
@@ -226,6 +235,11 @@ export default {
           }
         }
       })
+    },
+    pushIgnored (geofence) {
+      this.log = `ignored ${geofence}`
+      this.ignoredGeofences.push(geofence)
+      this.ignored++
     }
   },
   async mounted () {
