@@ -198,7 +198,8 @@ export default {
             if (addresses) {
               const { results } = await axios.get(`json?key=${process.env.GOOGLE_MAPS_API_KEY}&address=${encodeURIComponent(fields[1])}`).then(d => d.data)
               if (!results.length) {
-                this.pushIgnored(fields[0])
+                console.log('no results from google', results)
+                this.pushIgnored(fields[0], 'no results')
               } else {
                 fields[1] = results[0].geometry.location.lat
                 fields[2] = results[0].geometry.location.lng
@@ -224,7 +225,7 @@ export default {
                   this.updatedGeofences.push(geofence.name)
                   this.updated++
                 } else {
-                  this.pushIgnored(geofence.name)
+                  this.pushIgnored(geofence.name, 'duplicated')
                 }
               }
             } catch (e) {
@@ -236,9 +237,9 @@ export default {
         }
       })
     },
-    pushIgnored (geofence) {
-      this.log = `ignored ${geofence}`
-      this.ignoredGeofences.push(geofence)
+    pushIgnored (geofence, reason) {
+      this.log = `ignored ${geofence} - {reason}`
+      this.ignoredGeofences.push(this.log)
       this.ignored++
     }
   },
