@@ -238,7 +238,7 @@ export default {
       })
     },
     pushIgnored (geofence, reason) {
-      this.log = `ignored ${geofence} - {reason}`
+      this.log = `ignored ${geofence} - ${reason}`
       this.ignoredGeofences.push(this.log)
       this.ignored++
     }
