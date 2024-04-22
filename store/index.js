@@ -37,7 +37,7 @@ export const actions = {
   },
   removeGeofences ({ commit }, geofenceIds) {
     console.log(geofenceIds)
-    return this.$axios.$post('//reports/geofences/bulk/delete', geofenceIds)
+    return this.$axios.$post(`https://${window.location.hostname}/reports/geofences/bulk/delete`, geofenceIds)
   },
   async getDevices ({ commit }, userId) {
     commit('SET_DEVICES', await this.$axios.$get('devices' + (userId ? `?userId=${userId}` : '')))
