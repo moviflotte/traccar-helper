@@ -28,14 +28,14 @@
               :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
     </select>
     POIs from CSV (name;latitude;longitude;radius;description):
-    <input ref="csv" type="file" @change="addGeofencesFromCSV">
+    <input ref="csv" type="file" @change="() => addGeofencesFromCSV(false)">
     <p></p>
     <select v-model="groupId">
       <option v-for="d of groups" :key="d.id" :value="d.id"
               :style="selectedGroups.includes(d.id)?'background-color: yellow':''">{{d.name}}</option>
     </select>
     POIs from CSV with addresses (name;address;description):
-    <input ref="addresses" type="file" @change="addGeofencesFromCSV">
+    <input ref="addresses" type="file" @change="() => addGeofencesFromCSV(true)">
     <p></p>
     <p>
     <progress id="progress" :value="progress" :max="max" style="width: 100%"/><br>{{progress}}/{{max}} ({{(progress/max*100).toFixed(1)}}%)
