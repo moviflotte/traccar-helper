@@ -203,7 +203,7 @@ export default {
               } else {
                 fields[1] = results[0].geometry.location.lat
                 fields[2] = results[0].geometry.location.lng
-                fields[4] = fields[3]
+                fields[4] = fields[2]
                 fields[3] = null
               }
             }
