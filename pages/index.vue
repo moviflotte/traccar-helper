@@ -210,7 +210,7 @@ export default {
             const area = `CIRCLE (${fields[1]} ${fields[2]}, ${fields[3] || 100})`
             // eslint-disable-next-line no-control-regex
             // eslint-disable-next-line no-control-regex
-            const description = (fields[4] && fields[4].replace(/[^\x00-\x7F]/g, '')) || ''
+            const description = (typeof fields[4] === 'string' && fields[4].replace(/[^\x00-\x7F]/g, '')) || ''
             try {
               const geofence = this.geofences.find(g => g.name === name)
               if (!geofence) {
