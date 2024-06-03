@@ -202,9 +202,9 @@ export default {
                 this.pushIgnored(fields[0], 'no results')
               } else {
                 console.log('before', fields)
+                fields[4] = fields[2]
                 fields[1] = results[0].geometry.location.lat
                 fields[2] = results[0].geometry.location.lng
-                fields[4] = fields[2]
                 fields[3] = null
                 console.log('after', fields)
               }
